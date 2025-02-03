@@ -19,8 +19,13 @@ export class UserController {
 
     @UseGuards(JwtAuthGuard)
     @Post()
-    async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-        return this.userService.createUser(createUserDto);
+    async create(@Body() createUserDto: CreateUserDto) {
+        try {
+            const result = await this.userService.createUser(createUserDto);
+            return result;  // Aqui retorna a resposta de sucesso com status e mensagem
+        } catch (error) {
+            throw error;  // Propaga erro para ser tratado pelo NestJS
+        }
     }
 
     @UseGuards(JwtAuthGuard)
@@ -40,13 +45,26 @@ export class UserController {
     async update(
         @Param('id') id: number,
         @Body() updateUserDto: UpdateUserDto,
-    ): Promise<User> {
-        return this.userService.updateUser(id, updateUserDto);
+    ) {
+        try {
+            const result = await this.userService.updateUser(id, updateUserDto);
+            return result;  // Retorna a resposta de sucesso com status e mensagem
+        } catch (error) {
+            throw error;  // Propaga erro para ser tratado pelo NestJS
+        }
     }
 
     @UseGuards(JwtAuthGuard)
     @Delete(':id')
-    async delete(@Param('id') id: number): Promise<void> {
-        return this.userService.deleteUser(id);
+    async delete(@Param('id') id: number) {
+        try {
+            await this.userService.deleteUser(id);
+            return {
+                statusCode: 200,
+                message: `Usuário com ID ${id} deletado com sucesso!`,
+            };
+        } catch (error) {
+            throw error;  // Propaga erro para ser tratado pelo NestJS
+        }
     }
 }

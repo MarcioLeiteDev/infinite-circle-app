@@ -12,6 +12,13 @@ export class User {
     @Column({ unique: true })
     email: string;
 
+    @Column()
+    password: string;
+    @BeforeInsert()
+    async hashPassword() {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+
     @Column({ default: 'user' }) // Pode ser "admin", "user", "moderator", etc.
     role: string;
 
@@ -45,10 +52,5 @@ export class User {
     @Column({ nullable: true })
     n10: number;
 
-    @Column()
-    password: string;
-    @BeforeInsert()
-    async hashPassword() {
-        this.password = await bcrypt.hash(this.password, 10);
-    }
+
 }
