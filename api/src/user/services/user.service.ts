@@ -52,9 +52,11 @@ export class UserService {
                     }
                 }
                 updatedPayload.n1 = dto.n1;
+                updatedPayload.password = hashedPassword;
+
             }
 
-            dto.password = hashedPassword;
+
 
             await this.userRepository.save(updatedPayload);
 
