@@ -79,8 +79,8 @@ export default function Usuarios() {
                                 <th>ID</th>
                                 <th>Nome</th>
                                 <th>Email</th>
-                                <th>Editar</th>
-                                <th>Deletar</th>
+                                <th>Ações</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -89,14 +89,14 @@ export default function Usuarios() {
                                     <td>{user.id}</td>
                                     <td>{user.name}</td>
                                     <td>{user.email}</td>
-                                    <td>Editar</td>
-                                    <td>Excluir</td>
+                                    <td><button className="btn btn-success" ><i className="bi bi-pen"></i> Editar </button>
+                                        |||  <button className="btn btn-danger"><i className="bi bi-trash"></i> Remover </button></td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
                 )}
             </Card>
-        </Container>
+        </Container >
     );
 }

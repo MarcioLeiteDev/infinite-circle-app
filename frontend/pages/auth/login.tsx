@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { Container, Form, Button, Card } from "react-bootstrap";
+import Image from 'next/image';
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -36,6 +37,12 @@ export default function Login() {
     return (
         <Container className="d-flex justify-content-center align-items-center vh-100">
             <Card style={{ width: "350px" }} className="p-4 shadow">
+
+                {/* Centralizando a imagem corretamente */}
+                <div className="d-flex justify-content-center">
+                    <Image src="/image/logo.jpg" alt="Logo" width={200} height={200} />
+                </div>
+
                 <h3 className="text-center">Login</h3>
                 <Form onSubmit={handleLogin}>
                     <Form.Group className="mb-3">
