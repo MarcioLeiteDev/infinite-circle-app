@@ -31,7 +31,7 @@ export default function Login() {
       toast.success("Login realizado com sucesso!");
 
       // Redireciona para o dashboard
-      router.push("/dashboard");
+      router.push("/dashboards");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       toast.error("Erro ao fazer login. Verifique suas credenciais.");

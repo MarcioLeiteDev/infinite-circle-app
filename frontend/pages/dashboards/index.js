@@ -5,10 +5,10 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { Container, Button, Card } from "react-bootstrap";
-import Navbar from "../components/Navbar";
+import Navbar from "../../components/Navbar";
 
 
-export default function Dashboard() {
+export default function Dashboards() {
     const router = useRouter();
     const [username, setUsername] = useState("");
     const [userId, setUserId] = useState("");
