@@ -14,9 +14,14 @@ export default function Login() {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://127.0.0.1:3000/auth/login",
+        "http://localhost:3000/auth/login",
         { email, password },
-        { withCredentials: true } // Permite envio de cookies/tokens entre domínios
+        {
+          withCredentials: true, // Garante o envio e recebimento de cookies/tokens
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       // Armazena o token em um cookie

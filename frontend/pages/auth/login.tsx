@@ -20,7 +20,7 @@ export default function Login() {
             );
 
             // Armazena o token em um cookie
-            Cookies.set("token", data.token, { expires: 1 });
+            Cookies.set("token", data.access_token, { expires: 1 });
 
             // Notificação de sucesso
             toast.success("Login realizado com sucesso!");
