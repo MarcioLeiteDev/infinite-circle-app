@@ -12,7 +12,7 @@ export default function Usuarios() {
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
-    const [newUser, setNewUser] = useState({ name: "", email: "", password: "" });
+    const [newUser, setNewUser] = useState({ name: "", email: "", tipo: "", chave: "" });
     const [username, setUsername] = useState("");
     const [userId, setUserId] = useState("");
     const [apiMessage, setApiMessage] = useState("");
@@ -178,6 +178,27 @@ export default function Usuarios() {
                         <Form.Group className="mb-3">
                             <Form.Label>Email</Form.Label>
                             <Form.Control type="email" name="email" value={newUser.email} onChange={handleInputChange} required />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Tipo de Chave</Form.Label>
+                            <Form.Select
+                                name="tipo"
+                                value={newUser.tipo}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="">Selecione o tipo de chave</option>
+                                <option value="email">E-mail</option>
+                                <option value="celular">Celular</option>
+                                <option value="aleatoria">Aleatória</option>
+                                <option value="cnpj">CNPJ</option>
+                                <option value="cpf">CPF</option>
+                            </Form.Select>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Chave Pix</Form.Label>
+                            <Form.Control type="chave" name="chave" value={newUser.chave} onChange={handleInputChange} required />
                         </Form.Group>
                         <Button variant="primary" type="submit">Salvar</Button>
                     </Form>

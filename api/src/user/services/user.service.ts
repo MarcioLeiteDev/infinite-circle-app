@@ -4,13 +4,17 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from './../dto/create-user.dto';
 import { UpdateUserDto } from './../dto/update-user.dto';
+import { MailService } from './../../mail/mail.service';
 import * as bcrypt from 'bcrypt';
+
+
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        private readonly mailService: MailService
     ) { }
 
     // Função para encontrar usuário por email
@@ -30,8 +34,8 @@ export class UserService {
         }
 
         try {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(dto.password, salt);
+            const password = Math.random().toString(36).slice(-8); // Gera uma senha aleatória de 8 caracteres
+            const hashedPassword = await bcrypt.hash(password, 10);
 
             const existingUser = await this.userRepository.findOne({
                 where: { id: dto.n1 },
@@ -56,9 +60,9 @@ export class UserService {
 
             }
 
-
-
             await this.userRepository.save(updatedPayload);
+
+            await this.mailService.sendWelcomeEmail(updatedPayload.email, updatedPayload.name, updatedPayload.password);
 
             return {
                 statusCode: 201,

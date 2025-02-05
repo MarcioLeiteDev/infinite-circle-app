@@ -19,6 +19,12 @@ export class User {
         this.password = await bcrypt.hash(this.password, 10);
     }
 
+    @Column()
+    tipo: string;
+
+    @Column()
+    chave: string;
+
     @Column({ default: 'user' }) // Pode ser "admin", "user", "moderator", etc.
     role: string;
 
