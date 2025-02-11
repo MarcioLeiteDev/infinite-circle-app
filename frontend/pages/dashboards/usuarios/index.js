@@ -17,32 +17,27 @@ export default function Usuarios() {
     const [userId, setUserId] = useState("");
     const [apiMessage, setApiMessage] = useState("");
     const [alertVariant, setAlertVariant] = useState("success");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+
 
     useEffect(() => {
-        const token = Cookies.get("token");
-        if (!token) {
-            router.push("/auth/login");
-            return;
-        }
-        try {
-            const decoded = jwtDecode(token);
-            setUsername(decoded.name || "Usuário");
-            setUserId(decoded.sub || "null");
-        } catch (error) {
-            console.error("Erro ao decodificar o token:", error);
-        }
-        fetchUsers();
-    }, [router]);
+        fetchUsers(currentPage);
+    }, [currentPage]);
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (page = 1) => {
+        setLoading(true);
         try {
             const token = Cookies.get("token");
-            const response = await fetch("http://localhost:3000/user", {
+            const response = await fetch(`http://localhost:3000/user?page=${page}&limit=10`, {
                 headers: { "Authorization": `Bearer ${token}` },
             });
             if (!response.ok) throw new Error("Erro ao buscar usuários");
             const data = await response.json();
-            setUsers(data);
+            setUsers(data.data);
+            setTotalPages(Math.ceil(data.total / data.limit)); // Calcula total de páginas
+            setCurrentPage(page);
         } catch (error) {
             setError("Erro ao carregar os usuários.");
         } finally {
@@ -162,7 +157,29 @@ export default function Usuarios() {
                             ))}
                         </tbody>
                     </Table>
+
+
                 )}
+
+                <div className="d-flex justify-content-between mt-3">
+                    <Button
+                        variant="success"
+                        onClick={() => fetchUsers(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        Anterior
+                    </Button>
+                    <span>Página {currentPage} de {totalPages}</span>
+                    <Button
+                        variant="success"
+                        onClick={() => fetchUsers(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Próxima
+                    </Button>
+                </div>
+
+                <hr></hr>
                 <Button variant="danger" onClick={handleLogout} className="mb-3">Sair</Button>
             </Card>
             <Modal show={showModal} onHide={handleCloseModal}>

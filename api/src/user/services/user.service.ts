@@ -101,12 +101,35 @@ export class UserService {
     }
 
     // Função para retornar todos os usuários
-    async findAll(): Promise<User[]> {
+    // async findAll(): Promise<User[]> {
+    //     try {
+    //         return await this.userRepository.find();
+    //     } catch (error) {
+    //         console.error("Erro ao buscar todos os usuários:", error);
+    //         throw new InternalServerErrorException('Erro ao buscar todos os usuários');
+    //     }
+    // }
+
+    async findAll(page: number = 1, limit: number = 10): Promise<{ data: User[]; total: number; page: number; limit: number }> {
+        const [data, total] = await this.userRepository.findAndCount({
+            take: limit,
+            skip: (page - 1) * limit,
+        });
+
+        return { data, total, page, limit };
+    }
+
+    async findAllByN1(n1: number): Promise<User[]> {
         try {
-            return await this.userRepository.find();
+            // Busca todos os usuários onde o campo n1 é igual ao valor fornecido
+            const users = await this.userRepository.find({ where: { n1 } });
+            if (!users || users.length === 0) {
+                throw new NotFoundException(`Nenhum usuário encontrado com n1 igual a ${n1}`);
+            }
+            return users;
         } catch (error) {
-            console.error("Erro ao buscar todos os usuários:", error);
-            throw new InternalServerErrorException('Erro ao buscar todos os usuários');
+            console.error(`Erro ao buscar usuários com n1 igual a ${n1}:`, error);
+            throw new InternalServerErrorException('Erro ao buscar os usuários');
         }
     }
 

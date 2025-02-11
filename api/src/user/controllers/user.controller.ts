@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req, Query } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
@@ -6,8 +6,9 @@ import { User } from '../entities/user.entity';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { RolesGuard } from '../../auth/roles.guard';
 import { Roles } from '../../auth/roles.decorator';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-@Controller('user')
+@Controller('user') // Prefixo da rota: /user
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
@@ -22,22 +23,32 @@ export class UserController {
     async create(@Body() createUserDto: CreateUserDto) {
         try {
             const result = await this.userService.createUser(createUserDto);
-            return result;  // Aqui retorna a resposta de sucesso com status e mensagem
+            return result;
         } catch (error) {
-            throw error;  // Propaga erro para ser tratado pelo NestJS
+            throw error;
         }
     }
 
     @UseGuards(JwtAuthGuard)
     @Get()
-    async findAll(): Promise<User[]> {
-        return this.userService.findAll();
+    async findAll(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+    ): Promise<{ data: User[]; total: number; page: number; limit: number }> {
+        return this.userService.findAll(Number(page), Number(limit));
     }
 
     @UseGuards(JwtAuthGuard)
     @Get(':id')
     async findOne(@Param('id') id: number): Promise<User> {
         return this.userService.findOne(id);
+    }
+
+
+    @UseGuards(JwtAuthGuard)
+    @Get('by-n1/:n1')
+    async getUsersByN1(@Param('n1') n1: number) {
+        return this.userService.findAllByN1(n1);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -48,9 +59,9 @@ export class UserController {
     ) {
         try {
             const result = await this.userService.updateUser(id, updateUserDto);
-            return result;  // Retorna a resposta de sucesso com status e mensagem
+            return result;
         } catch (error) {
-            throw error;  // Propaga erro para ser tratado pelo NestJS
+            throw error;
         }
     }
 
@@ -64,7 +75,7 @@ export class UserController {
                 message: `Usuário com ID ${id} deletado com sucesso!`,
             };
         } catch (error) {
-            throw error;  // Propaga erro para ser tratado pelo NestJS
+            throw error;
         }
     }
 }
