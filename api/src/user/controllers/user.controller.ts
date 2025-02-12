@@ -48,7 +48,13 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @Get('by-n1/:n1')
     async getUsersByN1(@Param('n1') n1: number) {
-        return this.userService.findAllByN1(n1);
+        return this.userService.findByN1(n1);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('all/:n1')
+    async getUsersAll(@Param('n1') n1: number) {
+        return this.userService.findAllByHierarchy(n1);
     }
 
     @UseGuards(JwtAuthGuard)

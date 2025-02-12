@@ -120,7 +120,50 @@ export class UserService {
         return { data, total, page, limit };
     }
 
+    async findAllByHierarchy(value: number): Promise<User[]> {
+        try {
+            // Busca usuários onde o parâmetro esteja em qualquer um dos campos n1 a n10
+            const users = await this.userRepository.find({
+                where: [
+                    { n1: value },
+                    { n2: value },
+                    { n3: value },
+                    { n4: value },
+                    { n5: value },
+                    { n6: value },
+                    { n7: value },
+                    { n8: value },
+                    { n9: value },
+                    { n10: value }
+                ]
+            });
+
+            if (!users || users.length === 0) {
+                throw new NotFoundException(`Nenhum usuário encontrado com o valor ${value} na hierarquia.`);
+            }
+
+            return users;
+        } catch (error) {
+            console.error(`Erro ao buscar usuários na hierarquia com valor ${value}:`, error);
+            throw new InternalServerErrorException('Erro ao buscar os usuários');
+        }
+    }
+
     async findAllByN1(n1: number): Promise<User[]> {
+        try {
+            // Busca todos os usuários onde o campo n1 é igual ao valor fornecido
+            const users = await this.userRepository.find({ where: { n1 } });
+            if (!users || users.length === 0) {
+                throw new NotFoundException(`Nenhum usuário encontrado com n1 igual a ${n1}`);
+            }
+            return users;
+        } catch (error) {
+            console.error(`Erro ao buscar usuários com n1 igual a ${n1}:`, error);
+            throw new InternalServerErrorException('Erro ao buscar os usuários');
+        }
+    }
+
+    async findByN1(n1: number): Promise<User[]> {
         try {
             // Busca todos os usuários onde o campo n1 é igual ao valor fornecido
             const users = await this.userRepository.find({ where: { n1 } });

@@ -121,13 +121,11 @@ export default function Usuarios() {
         <Container className="mt-5">
             <Navbar />
             <Card className="p-4 shadow">
-                <h2>Listagem de Usuários</h2>
-                <h3>Bem-vindo {username}!</h3>
-                <p>O seu ID é {userId}</p>
+                <h2>Cadastro de Novos Usuários</h2>
                 <hr />
                 {apiMessage && <Alert variant={alertVariant} onClose={() => setApiMessage("")} dismissible>{apiMessage}</Alert>}
                 <div className="d-flex justify-content-end">
-                    <Button variant="primary" onClick={() => handleShowModal()} className="mb-3">Cadastrar Usuário</Button>
+                    <Button variant="primary" onClick={() => handleShowModal()} className="mb-3">+ Cadastrar Usuário</Button>
                 </div>
                 {loading ? (
                     <p>Carregando...</p>
@@ -135,7 +133,7 @@ export default function Usuarios() {
                     <p>{error}</p>
                 ) : (
                     <Table striped bordered hover>
-                        <thead>
+                        {/* <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nome</th>
@@ -155,29 +153,13 @@ export default function Usuarios() {
                                     </td>
                                 </tr>
                             ))}
-                        </tbody>
+                        </tbody> */}
                     </Table>
 
 
                 )}
 
-                <div className="d-flex justify-content-between mt-3">
-                    <Button
-                        variant="success"
-                        onClick={() => fetchUsers(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                        Anterior
-                    </Button>
-                    <span>Página {currentPage} de {totalPages}</span>
-                    <Button
-                        variant="success"
-                        onClick={() => fetchUsers(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        Próxima
-                    </Button>
-                </div>
+
 
                 <hr></hr>
                 <Button variant="danger" onClick={handleLogout} className="mb-3">Sair</Button>

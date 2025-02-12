@@ -29,10 +29,13 @@ export default function NavigationBar() {
                             <Nav.Link>Home</Nav.Link>
                         </Link>
                         <Link href="/dashboards/usuarios" passHref legacyBehavior>
-                            <Nav.Link>Usuarios</Nav.Link>
+                            <Nav.Link>Cadastro de Usuários</Nav.Link>
                         </Link>
                         <Link href="/dashboards/doacoes" passHref legacyBehavior>
                             <Nav.Link>Doações</Nav.Link>
+                        </Link>
+                        <Link href="/dashboards/colaboradores" passHref legacyBehavior>
+                            <Nav.Link>Colaboradores</Nav.Link>
                         </Link>
 
                         {/* Botão de Sair */}

@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { jwtDecode } from "jwt-decode";
 
-export default function LevelDad() {
+export default function Colaboradores() {
     const [username, setUsername] = useState("");
     const [userId, setUserId] = useState("");
     const [users, setUsers] = useState([]);
@@ -33,7 +33,7 @@ export default function LevelDad() {
             try {
                 const token = Cookies.get("token");
 
-                const response = await fetch(`http://localhost:3000/user/by-n1/${userId}`, {
+                const response = await fetch(`http://localhost:3000/user/all/${userId}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
