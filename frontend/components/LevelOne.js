@@ -63,21 +63,28 @@ export default function LevelDad() {
 
     return (
         <div>
-            <h2>Ascendentes</h2>
+            <h2>Colaboradores Ascendentes</h2>
             {userData ? (
-                <ul>
+                <div class="row">
                     {Object.keys(userData)
                         .filter((key) => key.startsWith("n") && userData[key] && userData[key].id) // Remove valores nulos, vazios e sem ID
                         .map((key) => (
-                            <li key={userData[key].id}>
-                                <strong>{key.toUpperCase()}:</strong> {userData[key].name} ({userData[key].email})
-                            </li>
+                            <div class="col-sm-4 mb-3 mt-3 mb-sm-0">
+                                <div class="card" key={userData[key].id} >
+                                    <div class="card-body" >
+                                        <strong>{key.toUpperCase()}:</strong>
+                                        <p>{userData[key].name} ({userData[key].email})</p>
+                                        <p>Chave {userData[key].tipo} ({userData[key].chave})</p>
+                                    </div>
+                                </div>
+                            </div>
                         ))}
-                </ul>
+                </div>
             ) : (
                 <p>Carregando...</p>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 
 
