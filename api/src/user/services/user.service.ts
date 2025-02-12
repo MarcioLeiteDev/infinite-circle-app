@@ -34,7 +34,8 @@ export class UserService {
         }
 
         try {
-            const password = Math.random().toString(36).slice(-8); // Gera uma senha aleatória de 8 caracteres
+            // const password = Math.random().toString(36).slice(-8); // Gera uma senha aleatória de 8 caracteres
+            const password = dto.password // Gera uma senha aleatória de 8 caracteres
             const hashedPassword = await bcrypt.hash(password, 10);
 
             const existingUser = await this.userRepository.findOne({
@@ -101,28 +102,85 @@ export class UserService {
     }
 
     // Função para retornar todos os usuários
-    async findAll(): Promise<User[]> {
+    // async findAll(): Promise<User[]> {
+    //     try {
+    //         return await this.userRepository.find();
+    //     } catch (error) {
+    //         console.error("Erro ao buscar todos os usuários:", error);
+    //         throw new InternalServerErrorException('Erro ao buscar todos os usuários');
+    //     }
+    // }
+
+    async findAll(page: number = 1, limit: number = 10): Promise<{ data: User[]; total: number; page: number; limit: number }> {
+        const [data, total] = await this.userRepository.findAndCount({
+            take: limit,
+            skip: (page - 1) * limit,
+        });
+
+        return { data, total, page, limit };
+    }
+
+    async findAllByN1(n1: number): Promise<User[]> {
         try {
-            return await this.userRepository.find();
+            // Busca todos os usuários onde o campo n1 é igual ao valor fornecido
+            const users = await this.userRepository.find({ where: { n1 } });
+            if (!users || users.length === 0) {
+                throw new NotFoundException(`Nenhum usuário encontrado com n1 igual a ${n1}`);
+            }
+            return users;
         } catch (error) {
-            console.error("Erro ao buscar todos os usuários:", error);
-            throw new InternalServerErrorException('Erro ao buscar todos os usuários');
+            console.error(`Erro ao buscar usuários com n1 igual a ${n1}:`, error);
+            throw new InternalServerErrorException('Erro ao buscar os usuários');
         }
     }
 
     // Função para buscar um usuário pelo ID
-    async findOne(id: number): Promise<User> {
+    async findOne(id: number): Promise<any> {
         try {
             const user = await this.userRepository.findOne({ where: { id } });
+
             if (!user) {
                 throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
             }
-            return user;
+
+            // Lista com os IDs de usuários relacionados
+            const relatedIds = {
+                n1: user.n1,
+                n2: user.n2,
+                n3: user.n3,
+                n4: user.n4,
+                n5: user.n5,
+                n6: user.n6,
+                n7: user.n7,
+                n8: user.n8,
+                n9: user.n9,
+                n10: user.n10
+            };
+
+            // Busca os usuários correspondentes aos IDs
+            const relatedUsers = await Promise.all(
+                Object.entries(relatedIds).map(async ([key, relatedId]) => {
+                    if (relatedId !== null) {
+                        const relatedUser = await this.userRepository.findOne({ where: { id: relatedId } });
+                        return { key, data: relatedUser };
+                    }
+                    return { key, data: null };
+                })
+            );
+
+            // Organiza os dados de volta no formato desejado
+            const formattedUsers = relatedUsers.reduce((acc, { key, data }) => {
+                acc[key] = data;
+                return acc;
+            }, {});
+
+            return { ...user, ...formattedUsers };
         } catch (error) {
             console.error(`Erro ao buscar usuário com ID ${id}:`, error);
             throw new InternalServerErrorException('Erro ao buscar o usuário');
         }
     }
+
 
     // Função para deletar um usuário
     async deleteUser(id: number): Promise<void> {

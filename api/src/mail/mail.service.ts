@@ -7,20 +7,25 @@ export class MailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
-            service: 'gmail', // Ou 'outlook', 'yahoo', etc.
+            host: 'mail.sensetranslate.com',
+            port: 587, // Porta recomendada pelo Postmark (2525 como alternativa)
+            secure: false, // TLS deve estar desativado para essas portas
             auth: {
-                user: 'marciodisbiriflix@gmail.com', // Altere para seu e-mail
-                pass: 'Dflix@7778', // Altere para sua senha (ou use um App Password do Google)
+                user: 'send@sensetranslate.com', // Sempre "apikey" no Postmark
+                pass: 'dflix7778', // Token do Postmark
             },
         });
     }
 
     async sendWelcomeEmail(email: string, name: string, password: string) {
         const mailOptions = {
-            from: 'marciodisbiriflix@gmail.com',
+            from: 'marcio.barbosa@tecksolucoes.com.br', // E-mail cadastrado no Postmark
             to: email,
             subject: 'Bem-vindo ao nosso sistema!',
             text: `Olá ${name}, seja bem-vindo!\n\nSua senha gerada é: ${password}\n\nAltere sua senha após o login.`,
+            html: `<p>Olá <strong>${name}</strong>, seja bem-vindo!</p>
+                   <p>Sua senha gerada é: <strong>${password}</strong></p>
+                   <p>Altere sua senha após o login.</p>`,
         };
 
         try {

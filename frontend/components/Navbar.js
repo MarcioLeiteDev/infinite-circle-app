@@ -31,6 +31,9 @@ export default function NavigationBar() {
                         <Link href="/dashboards/usuarios" passHref legacyBehavior>
                             <Nav.Link>Usuarios</Nav.Link>
                         </Link>
+                        <Link href="/dashboards/doacoes" passHref legacyBehavior>
+                            <Nav.Link>Doações</Nav.Link>
+                        </Link>
 
                         {/* Botão de Sair */}
                         <Button variant="danger" onClick={handleLogout}>
