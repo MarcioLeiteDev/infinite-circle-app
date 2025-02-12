@@ -34,7 +34,8 @@ export class UserService {
         }
 
         try {
-            const password = Math.random().toString(36).slice(-8); // Gera uma senha aleatória de 8 caracteres
+            // const password = Math.random().toString(36).slice(-8); // Gera uma senha aleatória de 8 caracteres
+            const password = dto.password // Gera uma senha aleatória de 8 caracteres
             const hashedPassword = await bcrypt.hash(password, 10);
 
             const existingUser = await this.userRepository.findOne({
@@ -134,18 +135,52 @@ export class UserService {
     }
 
     // Função para buscar um usuário pelo ID
-    async findOne(id: number): Promise<User> {
+    async findOne(id: number): Promise<any> {
         try {
             const user = await this.userRepository.findOne({ where: { id } });
+
             if (!user) {
                 throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
             }
-            return user;
+
+            // Lista com os IDs de usuários relacionados
+            const relatedIds = {
+                n1: user.n1,
+                n2: user.n2,
+                n3: user.n3,
+                n4: user.n4,
+                n5: user.n5,
+                n6: user.n6,
+                n7: user.n7,
+                n8: user.n8,
+                n9: user.n9,
+                n10: user.n10
+            };
+
+            // Busca os usuários correspondentes aos IDs
+            const relatedUsers = await Promise.all(
+                Object.entries(relatedIds).map(async ([key, relatedId]) => {
+                    if (relatedId !== null) {
+                        const relatedUser = await this.userRepository.findOne({ where: { id: relatedId } });
+                        return { key, data: relatedUser };
+                    }
+                    return { key, data: null };
+                })
+            );
+
+            // Organiza os dados de volta no formato desejado
+            const formattedUsers = relatedUsers.reduce((acc, { key, data }) => {
+                acc[key] = data;
+                return acc;
+            }, {});
+
+            return { ...user, ...formattedUsers };
         } catch (error) {
             console.error(`Erro ao buscar usuário com ID ${id}:`, error);
             throw new InternalServerErrorException('Erro ao buscar o usuário');
         }
     }
+
 
     // Função para deletar um usuário
     async deleteUser(id: number): Promise<void> {

@@ -6,15 +6,7 @@ import { Container, Button, Card, Table, Modal, Form, Alert } from "react-bootst
 import Navbar from "../../../components/Navbar";
 import LevelDad from "../../../components/LevelDad";
 import LevelOne from "../../../components/LevelOne";
-import LevelTwo from "../../../components/LevelTwo";
-import LevelThree from "../../../components/LevelThree";
-import LevelFour from "../../../components/LevelFour";
-import LevelFive from "../../../components/LevelFive";
-import LevelSix from "../../../components/LevelSix";
-import LevelSeven from "../../../components/LevelSeven";
-import LevelEight from "../../../components/LevelEight";
-import LevelNine from "../../../components/LevelNine";
-import LevelTen from "../../../components/LevelTen";
+
 
 export default function Doacoes() {
 
@@ -33,15 +25,7 @@ export default function Doacoes() {
                 <hr></hr>
                 <LevelDad />
                 <LevelOne />
-                <LevelTwo />
-                <LevelThree />
-                <LevelFour />
-                <LevelFive />
-                <LevelSix />
-                <LevelSeven />
-                <LevelEight />
-                <LevelNine />
-                <LevelTen />
+
 
                 <Button variant="danger" onClick={handleLogout}>
                     Sair

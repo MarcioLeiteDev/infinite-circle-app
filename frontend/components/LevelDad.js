@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-import { jwtDecode } from "jwt-decode"; // Certifique-se de que a biblioteca está instalada
+import { jwtDecode } from "jwt-decode";
 
 export default function LevelDad() {
     const [username, setUsername] = useState("");
     const [userId, setUserId] = useState("");
+    const [users, setUsers] = useState([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -13,23 +14,45 @@ export default function LevelDad() {
 
         if (token) {
             try {
-                // Decodifica o token
                 const decodedToken = jwtDecode(token);
-                console.log("Decoded Token:", decodedToken); // Verifique no console
-
-                // Atualiza o estado com as informações do usuário
                 setUsername(decodedToken.name || "Usuário desconhecido");
                 setUserId(decodedToken.sub || "ID não disponível");
             } catch (error) {
                 console.error("Erro ao decodificar o token:", error);
-                // Redireciona para a página de login em caso de erro
                 router.push("/auth/login");
             }
         } else {
-            // Se não houver token, redireciona para a página de login
             router.push("/auth/login");
         }
     }, [router]);
+
+    useEffect(() => {
+        if (!userId) return;
+
+        async function fetchUsers() {
+            try {
+                const token = Cookies.get("token");
+
+                const response = await fetch(`http://localhost:3000/user/by-n1/${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao buscar usuários");
+                }
+
+                const data = await response.json();
+                setUsers(data);
+            } catch (error) {
+                console.error("Erro ao buscar dados:", error);
+            }
+        }
+        fetchUsers();
+    }, [userId]);
 
     const handleLogout = () => {
         Cookies.remove("token");
@@ -38,10 +61,14 @@ export default function LevelDad() {
 
     return (
         <div>
-            <h2>Level Dad</h2>
-
-            <p>O seu ID é {userId}</p>
-
+            <h2>Descendentes</h2>
+            <ul>
+                {users.map((user) => (
+                    <li key={user.id}>
+                        <strong>{user.name}</strong> - {user.email}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
