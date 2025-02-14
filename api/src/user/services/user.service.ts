@@ -126,15 +126,7 @@ export class UserService {
             const users = await this.userRepository.find({
                 where: [
                     { n1: value },
-                    { n2: value },
-                    { n3: value },
-                    { n4: value },
-                    { n5: value },
-                    { n6: value },
-                    { n7: value },
-                    { n8: value },
-                    { n9: value },
-                    { n10: value }
+
                 ]
             });
 
@@ -147,6 +139,35 @@ export class UserService {
             console.error(`Erro ao buscar usuários na hierarquia com valor ${value}:`, error);
             throw new InternalServerErrorException('Erro ao buscar os usuários');
         }
+    }
+
+    async getUserHierarchy(userId: number, level = 10): Promise<User[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId, active: true },
+            relations: ['children'],
+        });
+
+        if (!user) return [];
+
+        const hierarchy: User[] = [];
+
+        async function fetchChildren(users: User[], depth: number) {
+            if (depth > level) return;
+
+            for (const user of users) {
+                if (user.active) {
+                    hierarchy.push(user);
+                    const children = await this.userRepository.find({
+                        where: { parent: user.id, isActive: true },
+                        relations: ['children'],
+                    });
+                    await fetchChildren(children, depth + 1);
+                }
+            }
+        }
+
+        await fetchChildren([user], 1);
+        return hierarchy;
     }
 
     async findAllByN1(n1: number): Promise<User[]> {
@@ -189,15 +210,7 @@ export class UserService {
             // Lista com os IDs de usuários relacionados
             const relatedIds = {
                 n1: user.n1,
-                n2: user.n2,
-                n3: user.n3,
-                n4: user.n4,
-                n5: user.n5,
-                n6: user.n6,
-                n7: user.n7,
-                n8: user.n8,
-                n9: user.n9,
-                n10: user.n10
+
             };
 
             // Busca os usuários correspondentes aos IDs

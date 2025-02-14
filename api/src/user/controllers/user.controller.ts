@@ -44,6 +44,10 @@ export class UserController {
         return this.userService.findOne(id);
     }
 
+    @Get(':id/hierarchy')
+    async getUserHierarchy(@Param('id') id: number) {
+        return this.userService.getUserHierarchy(id);
+    }
 
     @UseGuards(JwtAuthGuard)
     @Get('by-n1/:n1')

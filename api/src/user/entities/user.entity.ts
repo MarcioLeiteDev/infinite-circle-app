@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany, ManyToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+// import { Relation } from '../relation/relation.entity';
+import { Relation } from '../../relation/entities/relation.entity';
 
 @Entity()
 export class User {
@@ -20,10 +22,13 @@ export class User {
     }
 
     @Column()
-    tipo: string;
+    type: string;
 
     @Column()
-    chave: string;
+    key: string;
+
+    @Column()
+    phone: string;
 
     @Column({ default: 'user' }) // Pode ser "admin", "user", "moderator", etc.
     role: string;
@@ -31,32 +36,14 @@ export class User {
     @Column({ nullable: true })
     n1: number;
 
-    @Column({ nullable: true })
-    n2: number;
+    @Column({ default: true })
+    active: boolean;
 
-    @Column({ nullable: true })
-    n3: number;
+    @ManyToOne(() => User, (user) => user.children)
+    parent: User;
 
-    @Column({ nullable: true })
-    n4: number;
-
-    @Column({ nullable: true })
-    n5: number;
-
-    @Column({ nullable: true })
-    n6: number;
-
-    @Column({ nullable: true })
-    n7: number;
-
-    @Column({ nullable: true })
-    n8: number;
-
-    @Column({ nullable: true })
-    n9: number;
-
-    @Column({ nullable: true })
-    n10: number;
+    @OneToMany(() => User, (user) => user.parent)
+    children: User[];
 
 
 }
