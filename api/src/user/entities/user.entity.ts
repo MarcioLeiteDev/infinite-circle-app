@@ -39,11 +39,17 @@ export class User {
     @Column({ default: true })
     active: boolean;
 
-    @ManyToOne(() => User, (user) => user.children)
+    @ManyToOne(() => User, (user) => user.children, { nullable: true })
     parent: User;
 
     @OneToMany(() => User, (user) => user.parent)
     children: User[];
+
+    @OneToMany(() => Relation, (relation) => relation.sender)
+    sentRelations: Relation[];
+
+    @OneToMany(() => Relation, (relation) => relation.recipient)
+    receivedRelations: Relation[];
 
 
 }

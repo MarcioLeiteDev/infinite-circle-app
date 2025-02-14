@@ -46,6 +46,7 @@ export class UserController {
 
     @Get(':id/hierarchy')
     async getUserHierarchy(@Param('id') id: number) {
+        // return "ola";
         return this.userService.getUserHierarchy(id);
     }
 

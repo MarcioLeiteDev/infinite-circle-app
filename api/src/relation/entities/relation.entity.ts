@@ -7,10 +7,10 @@ export class Relation {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User, (user) => user.sentRelations)
+    @ManyToOne(() => User, (user) => user.sentRelations, { nullable: false, onDelete: 'CASCADE' })
     sender: User;
 
-    @ManyToOne(() => User, (user) => user.receivedRelations)
+    @ManyToOne(() => User, (user) => user.receivedRelations, { nullable: false, onDelete: 'CASCADE' })
     recipient: User;
 
     @CreateDateColumn()
