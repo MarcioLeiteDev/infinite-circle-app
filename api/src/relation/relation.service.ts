@@ -27,10 +27,10 @@ export class RelationService {
         });
     }
 
-    async getReceivedRelations(userId: number): Promise<Relation[]> {
+    async getReceivedRelations(userId: number, recipientId: number): Promise<Relation[]> {
         return this.relationRepository.find({
-            where: { recipient: { id: userId } },
-            relations: ['sender'],
+            where: { recipient: { id: recipientId }, sender: { id: userId } },
+            relations: ['sender', 'recipient'],
         });
     }
 }

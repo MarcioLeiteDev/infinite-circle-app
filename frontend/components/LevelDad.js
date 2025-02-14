@@ -33,7 +33,7 @@ export default function LevelDad() {
             try {
                 const token = Cookies.get("token");
 
-                const response = await fetch(`http://localhost:3000/user/all/${userId}`, {
+                const response = await fetch(`http://localhost:3000/user/${userId}/hierarchydesc`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export default function LevelDad() {
                 }
 
                 const data = await response.json();
-                setUsers(data);
+                setUsers(data.data); // Aqui você define o array de usuários
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
             }
@@ -62,11 +62,11 @@ export default function LevelDad() {
     return (
         <div>
             <h2>Descendentes</h2>
-            <div class="row">
-                {users.map((user) => (
-                    <div class="col-sm-4 mb-3 mt-3 mb-sm-0">
-                        <div class="card" key={user.id} >
-                            <div class="card-body" >
+            <div className="row">
+                {Array.isArray(users) && users.map((user) => (
+                    <div className="col-sm-4 mb-3 mt-3 mb-sm-0" key={user.id}>
+                        <div className="card">
+                            <div className="card-body">
                                 <p><strong>{user.name}</strong> - {user.email}</p>
                                 <p><strong>Tipo: {user.type}</strong> - Chave: {user.key}</p>
                             </div>

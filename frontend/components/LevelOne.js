@@ -61,7 +61,7 @@ export default function LevelDad() {
 
     return (
         <div>
-            <h2>Descendentes</h2>
+            <h2>Ascendentes</h2>
             <div class="row">
                 {users.map((user) => (
                     <div class="col-sm-4 mb-3 mt-3 mb-sm-0">
