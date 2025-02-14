@@ -38,6 +38,7 @@ export class UserController {
         return this.userService.findAll(Number(page), Number(limit));
     }
 
+
     @UseGuards(JwtAuthGuard)
     @Get(':id')
     async findOne(@Param('id') id: number): Promise<User> {
@@ -48,6 +49,28 @@ export class UserController {
     async getUserHierarchy(@Param('id') id: number) {
         // return "ola";
         return this.userService.getUserHierarchy(id);
+    }
+
+    @Get(':id/hierarchydesc')
+    async getUserHierarchyDesc(
+        @Param('id') id: number,   // Recebe o ID do usuário como parâmetro na URL
+        @Query('level') level: number = 10,  // Opção para definir o nível de profundidade (com valor default de 10)
+    ) {
+        try {
+            // Chama a função que busca a hierarquia descendente
+            const hierarchy = await this.userService.getUserHierarchyDesc(id, level);
+            return {
+                statusCode: 200,
+                message: 'Hierarquia de usuários recuperada com sucesso!',
+                data: hierarchy,
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                message: 'Erro ao recuperar a hierarquia de usuários',
+                error: error.message,
+            };
+        }
     }
 
     @UseGuards(JwtAuthGuard)
