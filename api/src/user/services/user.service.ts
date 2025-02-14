@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, BadRequestException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from './../dto/create-user.dto';
 import { UpdateUserDto } from './../dto/update-user.dto';
@@ -45,17 +45,17 @@ export class UserService {
             let updatedPayload = { ...dto };
 
             if (existingUser) {
-                // Move os valores para a próxima posição (n1 → n2, ..., n9 → n10)
-                for (let i = 9; i >= 1; i--) {
-                    const prevKey = `n${i}` as keyof User;
-                    const nextKey = `n${i + 1}` as keyof User;
+                // // Move os valores para a próxima posição (n1 → n2, ..., n9 → n10)
+                // for (let i = 9; i >= 1; i--) {
+                //     const prevKey = `n${i}` as keyof User;
+                //     const nextKey = `n${i + 1}` as keyof User;
 
-                    if (existingUser[prevKey] !== undefined && existingUser[prevKey] !== null) {
-                        (updatedPayload as any)[nextKey] = existingUser[prevKey];
-                    } else {
-                        (updatedPayload as any)[nextKey] = null;
-                    }
-                }
+                //     if (existingUser[prevKey] !== undefined && existingUser[prevKey] !== null) {
+                //         (updatedPayload as any)[nextKey] = existingUser[prevKey];
+                //     } else {
+                //         (updatedPayload as any)[nextKey] = null;
+                //     }
+                // }
                 updatedPayload.n1 = dto.n1;
                 updatedPayload.password = hashedPassword;
 
@@ -81,13 +81,28 @@ export class UserService {
     async updateUser(id: number, updateUserDto: UpdateUserDto) {
         try {
             const user = await this.findOne(id);
-            Object.assign(user, updateUserDto);
-
-            if (updateUserDto.password) {
-                user.password = await bcrypt.hash(updateUserDto.password, 10);
+            if (!user) {
+                throw new NotFoundException('Usuário não encontrado');
             }
 
-            const updatedUser = await this.userRepository.save(user);
+            // Verificar se o email já existe em outro usuário diferente do atual
+            if (updateUserDto.email && updateUserDto.email !== user.email) {
+                const existingUser = await this.userRepository.findOne({
+                    where: { email: updateUserDto.email },
+                });
+
+                if (existingUser && existingUser.id !== id) {
+                    throw new ConflictException('Este email já está em uso');
+                }
+            }
+
+            // Atualizar apenas os campos que foram enviados no DTO
+            const updatedUser = await this.userRepository.update(id, {
+                ...updateUserDto,
+                password: updateUserDto.password
+                    ? await bcrypt.hash(updateUserDto.password, 10)
+                    : user.password,
+            });
 
             return {
                 statusCode: 200,
@@ -101,15 +116,6 @@ export class UserService {
         }
     }
 
-    // Função para retornar todos os usuários
-    // async findAll(): Promise<User[]> {
-    //     try {
-    //         return await this.userRepository.find();
-    //     } catch (error) {
-    //         console.error("Erro ao buscar todos os usuários:", error);
-    //         throw new InternalServerErrorException('Erro ao buscar todos os usuários');
-    //     }
-    // }
 
     async findAll(page: number = 1, limit: number = 10): Promise<{ data: User[]; total: number; page: number; limit: number }> {
         const [data, total] = await this.userRepository.findAndCount({
@@ -126,15 +132,7 @@ export class UserService {
             const users = await this.userRepository.find({
                 where: [
                     { n1: value },
-                    { n2: value },
-                    { n3: value },
-                    { n4: value },
-                    { n5: value },
-                    { n6: value },
-                    { n7: value },
-                    { n8: value },
-                    { n9: value },
-                    { n10: value }
+
                 ]
             });
 
@@ -148,6 +146,64 @@ export class UserService {
             throw new InternalServerErrorException('Erro ao buscar os usuários');
         }
     }
+
+    // async getUserHierarchy(userId: number, level = 10): Promise<User[]> {
+    //     const user = await this.userRepository.findOne({
+    //         where: { id: userId, active: true },
+    //         relations: ['children'],
+    //     });
+
+    //     if (!user) return [];
+
+    //     const hierarchy: User[] = [];
+
+    //     async function fetchChildren(users: User[], depth: number) {
+    //         if (depth > level) return;
+
+    //         for (const user of users) {
+    //             if (user.active) {
+    //                 hierarchy.push(user);
+    //                 const children = await this.userRepository.find({
+    //                     where: { parent: user.id, isActive: true },
+    //                     relations: ['children'],
+    //                 });
+    //                 await fetchChildren(children, depth + 1);
+    //             }
+    //         }
+    //     }
+
+    //     await fetchChildren([user], 1);
+    //     return hierarchy;
+    // }
+
+    async getUserHierarchy(userId: number, level = 10): Promise<User[]> {
+        const hierarchy: User[] = [];
+
+        let currentUser = await this.userRepository.findOne({
+            where: { id: userId, active: true }
+        });
+
+        if (!currentUser) return [];
+
+        let depth = 0;
+        while (currentUser && currentUser.n1 !== null && depth < level) {
+            const parent = await this.userRepository.findOne({
+                where: { id: currentUser.n1, active: true }
+            });
+
+            if (!parent) break; // Se não encontrar mais ancestrais, para.
+
+            hierarchy.unshift(parent); // Adiciona no início da lista para manter ordem ascendente.
+            currentUser = parent;
+            depth++;
+        }
+
+        return hierarchy;
+    }
+
+
+
+
 
     async findAllByN1(n1: number): Promise<User[]> {
         try {
@@ -189,15 +245,7 @@ export class UserService {
             // Lista com os IDs de usuários relacionados
             const relatedIds = {
                 n1: user.n1,
-                n2: user.n2,
-                n3: user.n3,
-                n4: user.n4,
-                n5: user.n5,
-                n6: user.n6,
-                n7: user.n7,
-                n8: user.n8,
-                n9: user.n9,
-                n10: user.n10
+
             };
 
             // Busca os usuários correspondentes aos IDs
