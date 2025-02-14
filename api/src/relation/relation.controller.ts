@@ -15,8 +15,8 @@ export class RelationController {
         return this.relationService.getSentRelations(userId);
     }
 
-    @Get('received/:userId')
-    async getReceivedRelations(@Param('userId') userId: number) {
-        return this.relationService.getReceivedRelations(userId);
+    @Get('received/:sendId/:recipientId')
+    async getReceivedRelations(@Param('sendId') userId: number, @Param('recipientId') recipientId: number) {
+        return this.relationService.getReceivedRelations(userId, recipientId);
     }
 }
