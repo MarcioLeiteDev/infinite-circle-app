@@ -7,8 +7,6 @@ export default function LevelDad() {
     const [username, setUsername] = useState("");
     const [userId, setUserId] = useState("");
     const [users, setUsers] = useState([]);
-    const [userData, setUserData] = useState(null);
-
     const router = useRouter();
 
     useEffect(() => {
@@ -29,32 +27,32 @@ export default function LevelDad() {
     }, [router]);
 
     useEffect(() => {
-        async function fetchUserHierarchy() {
+        if (!userId) return;
+
+        async function fetchUsers() {
             try {
                 const token = Cookies.get("token");
-                const response = await fetch(`http://localhost:3000/user/${userId}`, {
+
+                const response = await fetch(`http://localhost:3000/user/${userId}/hierarchy`, {
+                    method: "GET",
                     headers: {
-                        Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
-                    },
+                        "Authorization": `Bearer ${token}`
+                    }
                 });
 
                 if (!response.ok) {
-                    throw new Error("Erro ao buscar usuário");
+                    throw new Error("Erro ao buscar usuários");
                 }
 
                 const data = await response.json();
-                setUserData(data); // Salva os dados do usuário
+                setUsers(data);
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
             }
         }
-
-        if (userId) {
-            fetchUserHierarchy();
-        }
+        fetchUsers();
     }, [userId]);
-
 
     const handleLogout = () => {
         Cookies.remove("token");
@@ -63,29 +61,19 @@ export default function LevelDad() {
 
     return (
         <div>
-            <h2>Colaboradores Ascendentes</h2>
-            {userData ? (
-                <div class="row">
-                    {Object.keys(userData)
-                        .filter((key) => key.startsWith("n") && userData[key] && userData[key].id) // Remove valores nulos, vazios e sem ID
-                        .map((key) => (
-                            <div class="col-sm-4 mb-3 mt-3 mb-sm-0">
-                                <div class="card" key={userData[key].id} >
-                                    <div class="card-body" >
-                                        <strong>{key.toUpperCase()}:</strong>
-                                        <p>{userData[key].name} ({userData[key].email})</p>
-                                        <p>Chave {userData[key].tipo} ({userData[key].chave})</p>
-                                    </div>
-                                </div>
+            <h2>Descendentes</h2>
+            <div class="row">
+                {users.map((user) => (
+                    <div class="col-sm-4 mb-3 mt-3 mb-sm-0">
+                        <div class="card" key={user.id} >
+                            <div class="card-body" >
+                                <p><strong>{user.name}</strong> - {user.email}</p>
+                                <p><strong>Tipo: {user.type}</strong> - Chave: {user.key}</p>
                             </div>
-                        ))}
-                </div>
-            ) : (
-                <p>Carregando...</p>
-            )
-            }
-        </div >
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
-
-
 }

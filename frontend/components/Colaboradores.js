@@ -33,7 +33,7 @@ export default function Colaboradores() {
             try {
                 const token = Cookies.get("token");
 
-                const response = await fetch(`http://localhost:3000/user/all/${userId}`, {
+                const response = await fetch(`http://localhost:3000/user/${userId}/hierarchydesc`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -46,7 +46,8 @@ export default function Colaboradores() {
                 }
 
                 const data = await response.json();
-                setUsers(data);
+                console.log("Dados recebidos:", data); // Verifique se os dados estão corretos
+                setUsers(data.data || []); // Ajuste para garantir que a resposta seja um array
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
             }
@@ -62,17 +63,21 @@ export default function Colaboradores() {
     return (
         <div>
             <h2>Descendentes</h2>
-            <div class="row">
-                {users.map((user) => (
-                    <div class="col-sm-4 mb-3 mt-3 mb-sm-0">
-                        <div class="card" key={user.id} >
-                            <div class="card-body" >
-                                <p><strong>{user.name}</strong> - {user.email}</p>
-                                <p><strong>{user.tipo}</strong> - {user.chave}</p>
+            <div className="row">
+                {users && users.length > 0 ? (
+                    users.map((user) => (
+                        <div className="col-sm-4 mb-3 mt-3 mb-sm-0" key={user.id}>
+                            <div className="card">
+                                <div className="card-body">
+                                    <p><strong>{user.name}</strong> - {user.email}</p>
+                                    <p><strong>Tipo: {user.type}</strong> - Chave: {user.key}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <p>Não há usuários disponíveis.</p>
+                )}
             </div>
         </div>
     );

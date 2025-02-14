@@ -147,35 +147,6 @@ export class UserService {
         }
     }
 
-    // async getUserHierarchy(userId: number, level = 10): Promise<User[]> {
-    //     const user = await this.userRepository.findOne({
-    //         where: { id: userId, active: true },
-    //         relations: ['children'],
-    //     });
-
-    //     if (!user) return [];
-
-    //     const hierarchy: User[] = [];
-
-    //     async function fetchChildren(users: User[], depth: number) {
-    //         if (depth > level) return;
-
-    //         for (const user of users) {
-    //             if (user.active) {
-    //                 hierarchy.push(user);
-    //                 const children = await this.userRepository.find({
-    //                     where: { parent: user.id, isActive: true },
-    //                     relations: ['children'],
-    //                 });
-    //                 await fetchChildren(children, depth + 1);
-    //             }
-    //         }
-    //     }
-
-    //     await fetchChildren([user], 1);
-    //     return hierarchy;
-    // }
-
     async getUserHierarchy(userId: number, level = 10): Promise<User[]> {
         const hierarchy: User[] = [];
 
@@ -200,6 +171,38 @@ export class UserService {
 
         return hierarchy;
     }
+
+    async getUserHierarchyDesc(userId: number, level = 10): Promise<User[]> {
+        const hierarchy: User[] = [];
+
+        // Buscar o usuário inicial
+        const user = await this.userRepository.findOne({
+            where: { id: userId, active: true }
+        });
+
+        if (!user) return [];
+
+        // Função recursiva para buscar os descendentes
+        const fetchChildren = async (parentIds: number[], depth: number) => {
+            if (depth > level || parentIds.length === 0) return;
+
+            const children = await this.userRepository.find({
+                where: { n1: In(parentIds), active: true }
+            });
+
+            if (children.length > 0) {
+                hierarchy.push(...children); // Adiciona os filhos à hierarquia
+                const nextParentIds = children.map(child => child.id);
+                await fetchChildren(nextParentIds, depth + 1);
+            }
+        };
+
+        // Começa a busca pelos filhos diretos do usuário
+        await fetchChildren([userId], 1);
+
+        return hierarchy;
+    }
+
 
 
 

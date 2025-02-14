@@ -8,6 +8,7 @@ import Navbar from "../../../components/Navbar";
 export default function Usuarios() {
     const router = useRouter();
     const [users, setUsers] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
@@ -19,6 +20,29 @@ export default function Usuarios() {
     const [alertVariant, setAlertVariant] = useState("success");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+
+    useEffect(() => {
+        const token = Cookies.get("token");
+
+        console.log(Cookies.get("token"));
+
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                console.log("Token decodificado:", decoded);
+                setUsername(decoded.name || "Usuário");
+                setUserId(decoded.sub || "null");
+            } catch (error) {
+                console.error("Erro ao decodificar o token:", error);
+            }
+        } else {
+            console.warn("Nenhum token encontrado!");
+            router.push("/auth/login");
+        }
+
+
+    }, []);
 
 
 
@@ -181,7 +205,7 @@ export default function Usuarios() {
                         <Form.Group className="mb-3">
                             <Form.Label>Tipo de Chave</Form.Label>
                             <Form.Select
-                                name="tipo"
+                                name="type"
                                 value={newUser.tipo}
                                 onChange={handleInputChange}
                                 required
@@ -197,7 +221,7 @@ export default function Usuarios() {
 
                         <Form.Group className="mb-3">
                             <Form.Label>Chave Pix</Form.Label>
-                            <Form.Control type="chave" name="chave" value={newUser.chave} onChange={handleInputChange} required />
+                            <Form.Control type="key" name="key" value={newUser.key} onChange={handleInputChange} required />
                         </Form.Group>
                         <Button variant="primary" type="submit">Salvar</Button>
                     </Form>
